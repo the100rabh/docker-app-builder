@@ -1,0 +1,15 @@
+# Python
+venv/
+*.pyc
+__pycache__/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Editor artifacts
+*.swp
+*.swo
+*~
+.#*
