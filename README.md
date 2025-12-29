@@ -1,7 +1,7 @@
 # Docker App Builder
 
-A simple desktop application for Linux to define, build, and run Docker containers.
-
+ A simple desktop application for Linux to define, build, and run Docker containers securely for agents like gemini-cli or qwencode as well as GUI apps in their own containers
+ 
 ## Prerequisites
 
 - Python 3.9+
