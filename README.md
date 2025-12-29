@@ -1,7 +1,14 @@
 # Docker App Builder
 
- A simple desktop application for Linux to define, build, and run Docker containers securely for agents like gemini-cli or qwencode as well as GUI apps in their own containers
- 
+The **Docker App Builder** is a versatile desktop application for Linux designed to streamline the process of defining, building, and running Docker containers. It aims to simplify Docker workflows for both developers and users of containerized applications by providing:
+
+*   **Intuitive Configuration:** A user-friendly interface (GUI) to easily specify container names, base images, installation commands, run commands, and volume mounts, abstracting away complex Docker CLI syntax.
+*   **Persistent Configurations:** The ability to save and load container configurations, ensuring consistency and reproducibility across sessions and for different projects.
+*   **Flexible Execution Modes:** Support for running containers in various modes: interactive terminal sessions for CLI applications, background for services, and securely sandboxed GUI applications with automatic X11 forwarding.
+*   **Seamless Integration:** Offers both a graphical interface for visual management and a powerful command-line interface (CLI) for scripting and automation, catering to diverse user preferences and workflows.
+*   **Simplified Distribution:** Tools to build standalone executables, allowing the application and its configurations to be easily distributed and run on systems without a full Python environment.
+*   **Enhanced Security and Isolation:** Enables secure execution of command-line tools and AI agents (like `gemini-cli` or `qwen-code`) by leveraging Docker's filesystem isolation. Users can precisely control host filesystem access via volume mounts, preventing unintended data exposure or modification.
+
 ## Prerequisites
 
 - Python 3.9+
@@ -67,8 +74,25 @@ To launch the graphical interface, run the script with no arguments:
     -   Click a configuration name to load its settings.
     -   Click the **Run** button to launch a container using the loaded settings. An existing container with the same name will be removed first.
 
-**Note for GUI Apps:**
-If you choose `GUI App` mode, the application will attempt to forward your X11 socket and `.Xauthority` file automatically. In some environments, you may still need to manually grant permission by running `xhost +local:docker` on your host.
+**Note for GUI Apps and Sandboxing:**
+When you choose the `GUI App` mode, the Docker App Builder configures the container to allow graphical applications to display on your host system. This is achieved through X11 forwarding, which securely bridges the container's graphical output to your local X server.
+
+Crucially, the GUI application itself still runs *inside* a Docker container, inheriting the same sandboxing benefits as CLI applications. This means:
+*   **Filesystem Isolation:** Unless explicitly mounted using the "Volume Mounts" feature, the GUI application within the container has no access to your host's files.
+*   **Limited Host Interaction:** The primary interaction with your host system is limited to displaying its graphical interface.
+*   **Controlled X Server Access:** The application automatically attempts to forward your X11 socket and `.Xauthority` file. In some environments, especially when connecting to a remote X server or if you encounter display issues, you might need to manually grant the Docker daemon permission to connect to your X server. This is typically done by running `xhost +local:docker` on your host *before* launching the container. This command grants access *only* to processes originating from the local Docker daemon, maintaining a controlled environment compared to `xhost +` which grants universal access. Always remove this permission with `xhost -local:docker` when no longer needed if you previously added it.
+
+This setup ensures that your GUI applications run in an isolated environment, minimizing their potential impact on your host system while still providing a seamless graphical experience.
+
+## A Note on Security and Sandboxing
+
+Running command-line tools and agents like `gemini-cli` or `qwen-code` inside a Docker container provides a significant security advantage. By default, a Docker container is isolated from your computer's filesystem. It cannot see, modify, or delete any of your personal files.
+
+The only way for a container to access your host filesystem is through an explicit **volume mount** (using the `--volume` flag or the "Volume Mounts" feature in the GUI). This gives you precise control over what the containerized application can access.
+
+For example, when you run `gemini-cli` and mount only its configuration directory (`--volume "$HOME/.gemini:/root/.gemini"`), you are granting it access to *only that specific folder*. The agent can read and write its own settings and history, but it remains completely sandboxed from the rest of your home directory and system files.
+
+This approach allows you to use these powerful tools without worrying about them accidentally deleting important files or accessing sensitive data outside of their intended scope.
 
 ## Command-Line Usage (CLI)
 
