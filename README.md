@@ -56,6 +56,8 @@ To launch the graphical interface, run the script with no arguments:
 ./venv/bin/python3 docker_app_builder/main.py
 ```
 
+![App Screenshot](app_screenshot.png)
+
 ## How to Use (GUI)
 
 1.  **Fill out the form:**
