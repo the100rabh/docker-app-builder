@@ -30,7 +30,7 @@ def find_terminal():
             return term, flag
     return None, None
 
-def build_image(tag, base_image, install_commands, log_callback=print):
+def build_image(tag, base_image, install_commands, log_callback=print, nocache=False):
     """
     Builds a Docker image and streams logs.
     Yields log lines as they are received.
@@ -50,7 +50,7 @@ def build_image(tag, base_image, install_commands, log_callback=print):
         log_callback("--- Dockerfile Generated ---")
         log_callback("\n".join(dockerfile_content))
         log_callback("--------------------------")
-        log_callback(f"Building image: {tag}...")
+        log_callback(f"Building image: {tag} {'(no-cache)' if nocache else ''}...")
 
         try:
             # Check for existing container and remove it
@@ -61,7 +61,7 @@ def build_image(tag, base_image, install_commands, log_callback=print):
             except docker.errors.NotFound:
                 pass # No container with that name exists
 
-            image, logs = client.images.build(path=tmpdir, tag=tag, rm=True)
+            image, logs = client.images.build(path=tmpdir, tag=tag, rm=True, nocache=nocache)
             for chunk in logs:
                 if 'stream' in chunk:
                     for line in chunk['stream'].splitlines():

@@ -68,8 +68,9 @@ To launch the graphical interface, run the script with no arguments:
     -   **Volume Mounts (Optional):** Add multiple volumes by specifying a **Host Path** on your computer and a **Container Path** inside the Docker container. If any volumes are mounted, the **Run Command** will execute from within the *first* mounted volume's directory inside the container by default.
     -   **Run Mode:** Choose `Terminal` for CLI apps, `Background` for services, or `GUI App` for graphical applications.
 
-2.  **Create:**
-    -   Click the **Create & Run** button to build the image, save the configuration, and run the container.
+2.  **Create & Rebuild:**
+    -   Click the **Create & Run** button to build the image (using cache if available), save the configuration, and run the container.
+    -   Click the **Rebuild** button to force a clean build of the image (ignoring cache), save the configuration, and run the container.
 
 3.  **Load and Run Existing Configs:**
     -   Previously created configurations are listed on the right.
@@ -182,6 +183,7 @@ To run this saved configuration later:
 - `--mode`: The run mode (`terminal`, `background`, or `gui_app`). Defaults to `terminal`.
 - `--volume`: (Optional) Mount one or more volumes. Each volume is specified in the format `<host_path>:<container_path>`. Can be specified multiple times (e.g., `--volume /host1:/cont1 --volume /host2:/cont2`). If any volumes are mounted, the **Run Command** will execute from within the *first* mounted volume's directory inside the container by default.
 - `--run`: (Flag) Run the container immediately after building.
+- `--no-cache`: (Flag) Do not use cache when building the image.
 
 ### Run a Saved Configuration
 

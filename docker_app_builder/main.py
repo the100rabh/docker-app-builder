@@ -94,6 +94,7 @@ if GUI_AVAILABLE:
 
             # Connect UI Signals
             self.ui.createButton.clicked.connect(lambda: self.create_container(run_after=True))
+            self.ui.rebuildButton.clicked.connect(lambda: self.create_container(run_after=True, nocache=True))
             self.ui.runButton.clicked.connect(self.run_container_from_ui)
             self.ui.loadButton.clicked.connect(self.load_selected_config)
             self.ui.configListWidget.currentItemChanged.connect(self.load_selected_config)
@@ -109,6 +110,7 @@ if GUI_AVAILABLE:
 
         def set_ui_loading(self, is_loading):
             self.ui.createButton.setDisabled(is_loading)
+            self.ui.rebuildButton.setDisabled(is_loading)
             self.ui.runButton.setDisabled(is_loading)
 
         def refresh_config_list(self):
@@ -175,7 +177,7 @@ if GUI_AVAILABLE:
             }
             return data
 
-        def create_container(self, run_after=False):
+        def create_container(self, run_after=False, nocache=False):
             config_data = self.gather_ui_data()
             if not config_data: return
 
@@ -185,7 +187,8 @@ if GUI_AVAILABLE:
             self.worker = Worker(docker_handler.build_image, 
                                  tag=config_data["container_name"],
                                  base_image=config_data["base_image"],
-                                 install_commands=config_data["install_commands"])
+                                 install_commands=config_data["install_commands"],
+                                 nocache=nocache)
             self.worker.log.connect(self.log)
             self.worker.finished.connect(lambda image: self.on_build_finished(image, config_data, run_after))
             self.worker.start()
@@ -256,7 +259,8 @@ def handle_create(args):
     image = docker_handler.build_image(
         tag=config_data["container_name"],
         base_image=config_data["base_image"],
-        install_commands=config_data["install_commands"]
+        install_commands=config_data["install_commands"],
+        nocache=args.no_cache
     )
     
     if image:
@@ -301,6 +305,7 @@ def main():
     create_parser.add_argument("--mode", choices=['terminal', 'background', 'gui_app'], default='terminal', help="Run mode.")
     create_parser.add_argument("--volume", nargs='*', help="Mount volumes in the format <host_path>:<container_path> (can be specified multiple times).")
     create_parser.add_argument("--run", action='store_true', help="Run the container immediately after a successful build.")
+    create_parser.add_argument("--no-cache", action='store_true', help="Do not use cache when building the image.")
     create_parser.set_defaults(func=handle_create)
 
     # Run command

@@ -80,9 +80,11 @@ class Ui_MainWindow(object):
         # Action buttons
         self.buttonLayout = QHBoxLayout()
         self.createButton = QPushButton("Create & Run")
+        self.rebuildButton = QPushButton("Rebuild")
         self.runButton = QPushButton("Run")
         self.loadButton = QPushButton("Load Config")
         self.buttonLayout.addWidget(self.createButton)
+        self.buttonLayout.addWidget(self.rebuildButton)
         self.buttonLayout.addWidget(self.runButton)
         self.buttonLayout.addWidget(self.loadButton)
         self.leftLayout.addLayout(self.buttonLayout)
