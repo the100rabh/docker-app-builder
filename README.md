@@ -184,6 +184,19 @@ To run this saved configuration later:
 - `--volume`: (Optional) Mount one or more volumes. Each volume is specified in the format `<host_path>:<container_path>`. Can be specified multiple times (e.g., `--volume /host1:/cont1 --volume /host2:/cont2`). If any volumes are mounted, the **Run Command** will execute from within the *first* mounted volume's directory inside the container by default.
 - `--run`: (Flag) Run the container immediately after building.
 - `--no-cache`: (Flag) Do not use cache when building the image.
+- `--host-access`: (Flag) Enable access to host services from the container via the hostname `host.docker.internal` (only applicable in `bridge` network mode).
+- `--network-mode`: (Choice) The network mode to use: `bridge` (default) or `host`.
+
+### Run a Saved Configuration
+
+```bash
+./venv/bin/python3 docker_app_builder/main.py run my-dev-env
+```
+
+**Arguments for `run`:**
+- `name`: (Required) The name of the saved configuration to run.
+ (Flag) Run the container immediately after building.
+- `--no-cache`: (Flag) Do not use cache when building the image.
 
 ### Run a Saved Configuration
 
