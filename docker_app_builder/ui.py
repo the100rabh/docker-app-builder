@@ -2,7 +2,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QComboBox, QTextEdit, QRadioButton,
-    QPushButton, QListWidget, QLabel, QGroupBox
+    QPushButton, QListWidget, QLabel, QGroupBox, QCheckBox
 )
 
 class Ui_MainWindow(object):
@@ -76,6 +76,24 @@ class Ui_MainWindow(object):
         self.modeLayout.addWidget(self.guiAppRadio)
         self.modeBox.setLayout(self.modeLayout)
         self.leftLayout.addWidget(self.modeBox)
+
+        # Network Settings
+        self.networkBox = QGroupBox("Network Settings")
+        self.networkLayout = QVBoxLayout()
+        
+        self.networkModeLayout = QHBoxLayout()
+        self.bridgeRadio = QRadioButton("Bridge (Isolated)")
+        self.hostNetworkRadio = QRadioButton("Host (Shared Stack)")
+        self.bridgeRadio.setChecked(True)
+        self.networkModeLayout.addWidget(self.bridgeRadio)
+        self.networkModeLayout.addWidget(self.hostNetworkRadio)
+        self.networkLayout.addLayout(self.networkModeLayout)
+
+        self.hostAccessCheckbox = QCheckBox("Enable host.docker.internal (Bridge only)")
+        self.networkLayout.addWidget(self.hostAccessCheckbox)
+        
+        self.networkBox.setLayout(self.networkLayout)
+        self.leftLayout.addWidget(self.networkBox)
         
         # Action buttons
         self.buttonLayout = QHBoxLayout()

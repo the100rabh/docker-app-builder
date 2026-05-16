@@ -82,7 +82,7 @@ def build_image(tag, base_image, install_commands, log_callback=print, nocache=F
 
 
 def run_container(image_tag, container_name, run_command, mode, 
-                    volumes=None, log_callback=print):
+                    volumes=None, log_callback=print, host_access=False, network_mode='bridge'):
     """Runs a container with the specified options."""
     if not DOCKER_EXECUTABLE or not client:
         log_callback("ERROR: Docker is not accessible. Please ensure Docker is installed and running.")
@@ -121,11 +121,27 @@ def run_container(image_tag, container_name, run_command, mode,
             log_callback(f"Setting working directory inside container to: '{first_volume_container_path}'")
             working_dir_arg = ['-w', first_volume_container_path]
 
+        # --- Prepare Network and Host Access ---
+        network_args = []
+        extra_hosts_sdk = {}
+        
+        if network_mode == 'host':
+            log_callback("Using Host Network Mode (sharing host network stack)...")
+            network_args = ['--network', 'host']
+            # host_access (host.docker.internal) is usually not needed in host mode, 
+            # but we can add it for compatibility if requested. 
+            # Note: some docker versions might complain if we use --add-host with --network host
+        else:
+            if host_access:
+                log_callback("Enabling host service access (host.docker.internal)...")
+                network_args = ['--add-host', 'host.docker.internal:host-gateway']
+                extra_hosts_sdk = {'host.docker.internal': 'host-gateway'}
+
         # --- Base command for subprocess calls ---
         docker_run_cmd_base = [
             DOCKER_EXECUTABLE, 'run', '--rm', # --rm is good for interactive/gui apps
             '--name', container_name
-        ] + volume_mount_args + working_dir_arg
+        ] + volume_mount_args + working_dir_arg + network_args
 
         if mode == 'terminal':
             log_callback("Searching for available terminal...")
@@ -182,6 +198,8 @@ def run_container(image_tag, container_name, run_command, mode,
                 name=container_name,
                 volumes=volumes_sdk,
                 working_dir=first_volume_container_path if first_volume_container_path else None,
+                extra_hosts=extra_hosts_sdk,
+                network_mode=network_mode,
                 detach=True
             )
             log_callback(f"Container {container.short_id} started in background.")

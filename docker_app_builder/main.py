@@ -152,6 +152,14 @@ if GUI_AVAILABLE:
                 if mode == "terminal": self.ui.terminalRadio.setChecked(True)
                 elif mode == "background": self.ui.backgroundRadio.setChecked(True)
                 elif mode == "gui_app": self.ui.guiAppRadio.setChecked(True)
+
+                # Host Access
+                self.ui.hostAccessCheckbox.setChecked(config.get("host_access", False))
+
+                # Network Mode
+                net_mode = config.get("network_mode", "bridge")
+                if net_mode == "host": self.ui.hostNetworkRadio.setChecked(True)
+                else: self.ui.bridgeRadio.setChecked(True)
                 
                 self.log(f"Loaded configuration '{config_name}'.")
 
@@ -174,6 +182,8 @@ if GUI_AVAILABLE:
                 "mode": ("terminal" if self.ui.terminalRadio.isChecked() else
                          "background" if self.ui.backgroundRadio.isChecked() else "gui_app"),
                 "volumes": volumes,
+                "host_access": self.ui.hostAccessCheckbox.isChecked(),
+                "network_mode": "host" if self.ui.hostNetworkRadio.isChecked() else "bridge",
             }
             return data
 
@@ -220,7 +230,9 @@ if GUI_AVAILABLE:
                                  container_name=config_data["container_name"],
                                  run_command=config_data["run_command"],
                                  mode=config_data["mode"],
-                                 volumes=config_data["volumes"]) # Pass the list of volumes
+                                 volumes=config_data["volumes"],
+                                 host_access=config_data.get("host_access", False),
+                                 network_mode=config_data.get("network_mode", "bridge")) # Pass network_mode
             self.worker.log.connect(self.log)
             self.worker.finished.connect(self.on_run_finished)
             self.worker.start()
@@ -254,6 +266,8 @@ def handle_create(args):
         "run_command": args.run_command,
         "mode": args.mode,
         "volumes": volumes,
+        "host_access": args.host_access,
+        "network_mode": args.network_mode,
     }
     
     image = docker_handler.build_image(
@@ -287,7 +301,9 @@ def handle_run(args):
         container_name=config["container_name"],
         run_command=config.get("run_command", ""),
         mode=config.get("mode", "terminal"),
-        volumes=config.get("volumes", [])
+        volumes=config.get("volumes", []),
+        host_access=config.get("host_access", False),
+        network_mode=config.get("network_mode", "bridge")
     )
 
 # --- Main Execution ---
@@ -306,6 +322,8 @@ def main():
     create_parser.add_argument("--volume", nargs='*', help="Mount volumes in the format <host_path>:<container_path> (can be specified multiple times).")
     create_parser.add_argument("--run", action='store_true', help="Run the container immediately after a successful build.")
     create_parser.add_argument("--no-cache", action='store_true', help="Do not use cache when building the image.")
+    create_parser.add_argument("--host-access", action='store_true', help="Enable access to host services via host.docker.internal.")
+    create_parser.add_argument("--network-mode", choices=['bridge', 'host'], default='bridge', help="Network mode (bridge or host).")
     create_parser.set_defaults(func=handle_create)
 
     # Run command
